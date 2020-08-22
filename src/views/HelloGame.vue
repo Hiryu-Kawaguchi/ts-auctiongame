@@ -8,44 +8,39 @@
 
 <script lang="ts">
 import Vue from "vue";
-import firebase from "firebase";
-
-const firebaseConfig = {
-  apiKey: "AIzaSyBTjRfyuO0SPuGj4hxD9ZjB_xUTkLaB6wk",
-  authDomain: "vue-chat-69814.firebaseapp.com",
-  databaseURL: "https://vue-chat-69814.firebaseio.com",
-  projectId: "vue-chat-69814",
-  storageBucket: "vue-chat-69814.appspot.com",
-  messagingSenderId: "560217022470",
-  appId: "1:560217022470:web:3ac3dd96b2db4a7c6c6387",
-  measurementId: "G-TWT9JQ2277"
-};
-firebase.initializeApp(firebaseConfig);
-
-// const db = firebase.firestore();
-
+import GameService from "../service/game";
 export default Vue.extend({
   name: "HelloGame",
   data() {
     return {
       name: "hoge",
-      gameId: "gameid"
+      gameId: "gameid",
     };
   },
+  async created() {
+    const db = await GameService.connectDB();
+    this.$store.commit('setDB',db);
+  },
   methods: {
-    onclick() {
+    async onclick() {
       this.$store.commit('setName', this.name);
-      const name = this.$store.getters.name;
-      console.log("name",name);
-      // db.collection("game").add({
-      //   createUserName: this.name,
-      // })
-      //   .then(function(docRef) {
-      //     console.log("Document written with ID: ", docRef.id);
-      //   })
-      //   .catch(function(error) {
-      //     console.error("Error adding document: ", error);
-      //   });
+      const db = this.$store.getters.db;
+      try {
+        const res = await db.collection("game").add({
+          scoreCards: [1,2,3,4,5,6,7,8,9,10,-1,-2,-3,-4,-5],
+          status: 0,
+          round: 0,
+          players: [{
+            id: GameService.generateUuid(),
+            name: this.name,
+            hasCards: [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15],
+          }]
+        });
+        this.$store.commit('setId', res.docRef);
+        this.$router.push("waiting");
+      } catch (err){
+        console.log("err",err);
+      }
     }
   }
 });
