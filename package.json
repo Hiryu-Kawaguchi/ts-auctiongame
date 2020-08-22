@@ -50,7 +50,8 @@
       "semi": [
         "error",
         "always"
-      ]
+      ],
+      "indent": ["error", 2]
     }
   },
   "browserslist": [
