@@ -49,7 +49,8 @@ export default Vue.extend({
         const newUser = {
           id: GameService.generateUuid(),
           name: this.name,
-          hasCards: [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15]
+          hasCards: [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15],
+          useCards: Array(15).fill(0)
         };
         const players = gameDoc.data().players;
         players.push(newUser);
@@ -60,11 +61,13 @@ export default Vue.extend({
           const res = await db.collection("game").add({
             scoreCards: [1,2,3,4,5,6,7,8,9,10,-1,-2,-3,-4,-5],
             status: "0",
+            isChooseing: "0",
             round: 0,
             players: [{
               id: GameService.generateUuid(),
               name: this.name,
-              hasCards: [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15]
+              hasCards: [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15],
+              useCards: Array(15).fill(0)
             }]
           });
           this.$store.commit('setId', res.id);
