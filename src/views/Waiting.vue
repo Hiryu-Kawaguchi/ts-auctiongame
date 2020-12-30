@@ -70,11 +70,15 @@ export default Vue.extend({
     const db: firebase.firestore.Firestore = this.$store.getters.db;
     this.gameId = this.$store.getters.id;
     this.yourName = this.$store.getters.name;
+    if (!this.gameId || !this.yourName){
+      this.$router.push("/");
+    }
     this.unsubscribe = db.collection("game").doc(this.gameId)
       .onSnapshot((doc: any) => {
         this.game = doc.data();
         if (this.game.isChooseing === "1"){
-          this.log = "Master: FinishGame\n" + this.log;
+          const winner = this.computedWinner(this.game.round);
+          this.log = `Round${this.game.round + 1} Finished\nWinner Player: ${winner}\n` + this.log;
         }
       });
   },
@@ -95,7 +99,7 @@ export default Vue.extend({
       return String(this.game.round + 1);
     },
     roundScore: function (): number{
-      return this.game.scoreCards[this.game.round];
+      return this.computedRoundScore(this.game.round, 0);
     },
     canGoResult: function (): boolean{
       return this.game.players.find(p => p.useCards[this.game.round] === 0) === undefined && this.game.isChooseing === "0";
@@ -105,11 +109,11 @@ export default Vue.extend({
     }
   },
   methods: {
-    async start () {
+    async start () : Promise<void>{
       const db: firebase.firestore.Firestore = this.$store.getters.db;
       await db.collection("game").doc(this.gameId).update({status: "1"});
     },
-    async submitCard () {
+    async submitCard () : Promise<void>{
       const db: firebase.firestore.Firestore = this.$store.getters.db;
       let players = this.game.players;
       let youIndex = players.findIndex(p => p.name === this.yourName);
@@ -125,12 +129,52 @@ export default Vue.extend({
     async nextRound (): Promise<void> {
       const db: firebase.firestore.Firestore = this.$store.getters.db;
       const nextRound = this.game.round + 1;
-      await db.collection("game").doc(this.gameId).update({round: nextRound});
+      await db.collection("game").doc(this.gameId).update({round: nextRound, isChooseing: "0"});
     },
-    roundWinner (){
-      return; 
+    computedRoundScore (round:number, addScore: number): number{
+      const scoreCards = this.game.scoreCards[round];
+      if (round === 0){
+        return addScore + scoreCards;
+      } else if (round > 0){
+        const usedCardsBeforeRound = this.game.players.map(p => p.useCards[round - 1]);
+        const removeDuplicate = Array.from(new Set(usedCardsBeforeRound));
+        if (removeDuplicate.length === 1 && removeDuplicate[0] !== 0){
+          this.computedRoundScore(round - 1, addScore + scoreCards);
+        } else {
+          return addScore + scoreCards;
+        }
+      }
+      return 0;
+    },
+    computedWinner (round:number): string{
+      const roundScore = this.computedRoundScore(round, 0);
+      const players = this.game.players;
+      const min = players.map(p => p.useCards[round]).reduce((a, b)=>Math.min(a, b));
+      const max = players.map(p => p.useCards[round]).reduce((a, b)=>Math.max(a, b));
+      if (roundScore < 0){
+        if (min === 0){
+          return "Notyet Round";
+        } else {
+          const minPlayers = players.filter(p => p.useCards[round] === min);
+          if (minPlayers.length !== 1){
+            return "No Winner";
+          }
+          return minPlayers[0].name;
+        }
+      } else if (0 < roundScore){
+        if (max === 0){
+          return "Notyet Round";
+        } else {
+          const maxPlayers = players.filter(p => p.useCards[round] === max);
+          if (maxPlayers.length !== 1){
+            return "No Winner";
+          }
+          return maxPlayers[0].name;
+        }
+      } else {
+        return "Notyet Round";
+      }
     }
-
   }
 });
 </script>

@@ -58,8 +58,9 @@ export default Vue.extend({
         this.$store.commit('setId', gameDoc.id);
       } else {
         try {
+          const scoreCards = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, -1, -2, -3, -4, -5];
           const res = await db.collection("game").add({
-            scoreCards: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, -1, -2, -3, -4, -5],
+            scoreCards: GameService.shuffle(scoreCards),
             status: "0",
             isChooseing: "0",
             round: 0,
