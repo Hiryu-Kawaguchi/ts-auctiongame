@@ -20,30 +20,30 @@ export default new Vuex.Store({
     db: null
   },
   mutations: {
-    setName(state,payload){
+    setName (state, payload){
       state.name = payload;
     },
-    setGame(state,payload){
+    setGame (state, payload){
       state.game = payload;
     },
-    setDB(state,payload){
+    setDB (state, payload){
       state.db = payload;
     },
-    setId(state,payload){
+    setId (state, payload){
       state.id = payload;
     }
   },
   getters: {
-    name(state){
+    name (state){
       return state.name;
     },
-    game(state){
+    game (state){
       return state.game;
     },
-    db(state){
+    db (state){
       return state.db;
     },
-    id(state){
+    id (state){
       return state.id;
     }
   },

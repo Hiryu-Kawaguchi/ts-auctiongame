@@ -45,7 +45,7 @@ type DataType = {
 
 export default Vue.extend({
   name: "Waiting",
-  data: function(): DataType {
+  data: function (): DataType {
     return {
       gameId: "",
       yourName: "",
@@ -66,14 +66,14 @@ export default Vue.extend({
       unsubscribe: () => {}
     };
   },
-  async created() {
+  async created () {
     const db: firebase.firestore.Firestore = this.$store.getters.db;
     this.gameId = this.$store.getters.id;
     this.yourName = this.$store.getters.name;
     this.unsubscribe = db.collection("game").doc(this.gameId)
       .onSnapshot((doc: any) => {
         this.game = doc.data();
-        if(this.game.isChooseing === "1"){
+        if (this.game.isChooseing === "1"){
           this.log = "Master: FinishGame\n" + this.log;
         }
       });
@@ -105,11 +105,11 @@ export default Vue.extend({
     }
   },
   methods: {
-    async start() {
+    async start () {
       const db: firebase.firestore.Firestore = this.$store.getters.db;
       await db.collection("game").doc(this.gameId).update({status: "1"});
     },
-    async submitCard() {
+    async submitCard () {
       const db: firebase.firestore.Firestore = this.$store.getters.db;
       let players = this.game.players;
       let youIndex = players.findIndex(p => p.name === this.yourName);
@@ -118,16 +118,16 @@ export default Vue.extend({
       players[youIndex] = you;
       await db.collection("game").doc(this.gameId).update({players: players});
     },
-    async goResult(): Promise<void> {
+    async goResult (): Promise<void> {
       const db: firebase.firestore.Firestore = this.$store.getters.db;
       await db.collection("game").doc(this.gameId).update({isChooseing: "1"});
     },
-    async nextRound(): Promise<void> {
+    async nextRound (): Promise<void> {
       const db: firebase.firestore.Firestore = this.$store.getters.db;
       const nextRound = this.game.round + 1;
       await db.collection("game").doc(this.gameId).update({round: nextRound});
     },
-    roundWinner(){
+    roundWinner (){
       return; 
     }
 

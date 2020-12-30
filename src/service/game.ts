@@ -2,7 +2,7 @@ import firebase from "firebase";
 
 export default class GameService {
   
-  static async connectDB(){
+  static async connectDB (){
     const firebaseConfig = {
       apiKey: "AIzaSyBTjRfyuO0SPuGj4hxD9ZjB_xUTkLaB6wk",
       authDomain: "vue-chat-69814.firebaseapp.com",
@@ -17,8 +17,8 @@ export default class GameService {
     return firebase.firestore();
   }
 
-  static generateUuid(){
-    let chars = "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".split("");
+  static generateUuid (){
+    const chars = "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".split("");
     for (let i = 0, len = chars.length; i < len; i++) {
       switch (chars[i]) {
       case "x":

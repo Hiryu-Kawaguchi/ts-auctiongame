@@ -14,65 +14,65 @@ import Vue from "vue";
 import GameService from "../service/game";
 export default Vue.extend({
   name: "HelloGame",
-  data() {
+  data () {
     return {
       name: "",
       gameId: "",
       isJoin: false
     };
   },
-  async created() {
+  async created () {
     const db = await GameService.connectDB();
-    this.$store.commit('setDB',db);
+    this.$store.commit('setDB', db);
   },
   methods: {
-    alert(title:string) {
+    alert (title:string) {
       this.$buefy.dialog.alert(title);
     },
-    async onclick() {
-      if(!this.name){
+    async onclick () {
+      if (!this.name){
         this.alert("Fill Out name");
         return;
       }
       this.$store.commit('setName', this.name);
       const db = this.$store.getters.db;
-      if(this.isJoin){
-        if(!this.gameId){
+      if (this.isJoin){
+        if (!this.gameId){
           this.alert("Fill Out gameID");
           return;
         }
         const gameDoc = await db.collection("game").doc(this.gameId).get();
-        if(!gameDoc.exists){
+        if (!gameDoc.exists){
           this.alert("not exists game");
           return;
         }
         const newUser = {
           id: GameService.generateUuid(),
           name: this.name,
-          hasCards: [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15],
+          hasCards: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15],
           useCards: Array(15).fill(0)
         };
         const players = gameDoc.data().players;
         players.push(newUser);
         await db.collection("game").doc(this.gameId).update({players});
         this.$store.commit('setId', gameDoc.id);
-      }else{
+      } else {
         try {
           const res = await db.collection("game").add({
-            scoreCards: [1,2,3,4,5,6,7,8,9,10,-1,-2,-3,-4,-5],
+            scoreCards: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, -1, -2, -3, -4, -5],
             status: "0",
             isChooseing: "0",
             round: 0,
             players: [{
               id: GameService.generateUuid(),
               name: this.name,
-              hasCards: [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15],
+              hasCards: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15],
               useCards: Array(15).fill(0)
             }]
           });
           this.$store.commit('setId', res.id);
         } catch (err){
-          console.log("err",err);
+          console.log("err", err);
         }
       }
       this.$router.push("waiting");
