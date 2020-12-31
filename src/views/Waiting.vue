@@ -10,7 +10,8 @@
     <div v-else-if="isPlaying">
       <p>Playing......</p>
       <p>Round: {{computedRound}}</p>
-      <p>ScoreCard: {{roundScore}}</p>
+      <p>ScoreCard: {{scoreCard}}</p>
+      <p>RoundScore: {{roundScore}}</p>
       <div v-for="p in game.players" :key="p.id">
         <strong>Name: {{p.name}}</strong>
         <select v-if="p.name === yourName & p.useCards[game.round] === 0" v-model="chooseCard" id="choose_card" name="choose_card">
@@ -98,6 +99,9 @@ export default Vue.extend({
     computedRound: function (): string {
       return String(this.game.round + 1);
     },
+    scoreCard: function ():number {
+      return this.game.scoreCards[this.game.round];
+    },
     roundScore: function (): number{
       return this.computedRoundScore(this.game.round, 0);
     },
@@ -139,7 +143,7 @@ export default Vue.extend({
         const usedCardsBeforeRound = this.game.players.map(p => p.useCards[round - 1]);
         const removeDuplicate = Array.from(new Set(usedCardsBeforeRound));
         if (removeDuplicate.length === 1 && removeDuplicate[0] !== 0){
-          this.computedRoundScore(round - 1, addScore + scoreCards);
+          return this.computedRoundScore(round - 1, addScore + scoreCards);
         } else {
           return addScore + scoreCards;
         }
