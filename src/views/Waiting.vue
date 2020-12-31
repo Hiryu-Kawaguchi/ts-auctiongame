@@ -15,7 +15,7 @@
       <div v-for="p in game.players" :key="p.id">
         <strong>Name: {{p.name}}</strong>
         <select v-if="p.name === yourName & p.useCards[game.round] === 0" v-model="chooseCard" id="choose_card" name="choose_card">
-          <option v-for="c in p.hasCards" :key="c.id" :value="c">{{c}}</option>
+          <option v-for="c in canUseCard(p.hasCards,p.useCards)" :key="c.id" :value="c">{{c}}</option>
         </select>
         <button v-if="p.name === yourName & p.useCards[game.round] === 0" v-on:click="submitCard()">submit</button>
         <strong v-if="p.useCards[game.round] !== 0"> Done</strong>
@@ -134,6 +134,9 @@ export default Vue.extend({
       const db: firebase.firestore.Firestore = this.$store.getters.db;
       const nextRound = this.game.round + 1;
       await db.collection("game").doc(this.gameId).update({round: nextRound, isChooseing: "0"});
+    },
+    canUseCard (hasCards:Array<number>, useCards:Array<number>): Array<number>{
+      return hasCards.filter(c => !useCards.includes(c));
     },
     computedRoundScore (round:number, addScore: number): number{
       const scoreCards = this.game.scoreCards[round];
