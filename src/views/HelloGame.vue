@@ -1,29 +1,47 @@
 <template>
   <div class="home">
-      <input v-model="name" placeholder="yourname..." name="name" label="name">
-      <input :disabled="!isJoin" v-model="gameId" placeholder="join gameid" name="gameId" label="gameId">
-      <b-switch v-model="isJoin">
-        JoinGame
+      <b-field label="UserName" label-position="on-border">
+            <b-input v-model="name" placeholder="Kevin"></b-input>
+      </b-field>
+      <b-switch v-model="isNewGame">
+        NewGame
       </b-switch>
-      <button v-on:click="onclick()">submit</button>
+      <b-field label="GameID" label-position="on-border">
+            <b-input :disabled="isNewGame" v-model="gameId" placeholder="xxxxxxxxxxxxxxxx"></b-input>
+      </b-field>
+      <div class="buttons">
+            <b-button type="is-primary" @click="onclick()" expanded>{{submitButtonTitle}}</b-button>
+        </div>
   </div>
 </template>
 
 <script lang="ts">
 import Vue from "vue";
 import GameService from "../service/game";
+
+type DataType = {
+  name: string,
+  gameId: string,
+  isNewGame: boolean
+}
+
 export default Vue.extend({
   name: "HelloGame",
-  data () {
+  data: function () : DataType {
     return {
       name: "",
       gameId: "",
-      isJoin: false
+      isNewGame: true
     };
   },
   async created () {
     const db = await GameService.connectDB();
     this.$store.commit('setDB', db);
+  },
+  computed: {
+    submitButtonTitle: function () : string {
+      return this.isNewGame ? "Create Game" : "Join Game"; 
+    }
   },
   methods: {
     alert (title:string) {
@@ -36,7 +54,7 @@ export default Vue.extend({
       }
       this.$store.commit('setName', this.name);
       const db = this.$store.getters.db;
-      if (this.isJoin){
+      if (!this.isNewGame){
         if (!this.gameId){
           this.alert("Fill Out gameID");
           return;

@@ -1,29 +1,38 @@
 <template>
-  <div class="home">
-    <p>GameID: {{gameId}}</p>
-    <p>yourName: {{yourName}}</p>
+  <div>
+    <b-steps :value="activeStep" :animated="false" :has-navigation="false" mobile-mode="null">
+        <b-step-item step="1" label="待機中..">
+        </b-step-item>
+        <b-step-item step="2" label="選択中..">
+        </b-step-item>
+        <b-step-item step="3" label="確認中..">
+        </b-step-item>
+        <b-step-item step="4" label="終了..">
+        </b-step-item>
+    </b-steps>
+    <h3 class="general_title">ゲームNo: {{gameId}}</h3>
+    <h3 class="general_title">ユーザーネーム: {{yourName}}</h3>
     <div v-if="isWaiting">
-      <p>Waiting......</p>
-      <p>JoinMenber:{{joinPlayerNum}}</p>
-      <b-button @click="start()" :disabled="canStartPlayerNum">GameStart</b-button>
+      <h3 class="general_title">現在参加者数: {{joinPlayerNum}}</h3>
+      <p>※3人以上から開始可能です</p>
+      <b-button @click="start()" :disabled="canStartPlayerNum" expanded>ゲーム開始</b-button>
     </div>
     <div v-else-if="isPlaying">
-      <p>Playing......</p>
-      <p>Round: {{computedRound}}</p>
-      <p>ScoreCard: {{scoreCard}}</p>
-      <p>RoundScore: {{roundScore}}</p>
-      <div v-for="p in game.players" :key="p.id">
-        <strong>Name: {{p.name}}</strong>
+      <h3 class="general_title">ラウンド: {{computedRound}}</h3>
+      <h3 class="general_title">ScoreCard: {{scoreCard}}</h3>
+      <h3 class="general_title">RoundScore: {{roundScore}}</h3>
+      <div class="general_value" v-for="p in game.players" :key="p.id">
+        <strong>ユーザー: {{p.name}} </strong>
         <select v-if="p.name === yourName & p.useCards[game.round] === 0" v-model="chooseCard" id="choose_card" name="choose_card">
           <option v-for="c in canUseCard(p.hasCards,p.useCards)" :key="c.id" :value="c">{{c}}</option>
         </select>
-        <button v-if="p.name === yourName & p.useCards[game.round] === 0" v-on:click="submitCard()">submit</button>
-        <strong v-if="p.useCards[game.round] !== 0"> Done</strong>
-        <strong v-if="p.useCards[game.round] === 0"> Choosing</strong>
+        <button v-if="p.name === yourName & p.useCards[game.round] === 0" v-on:click="submitCard()">提出</button>
+        <strong v-if="p.useCards[game.round] !== 0"> 選択完了</strong>
+        <strong v-if="p.useCards[game.round] === 0"> 選択中..</strong>
       </div>
       <button v-if="canGoResult" v-on:click="goResult()">GoResult</button>
       <button v-if="canGoNextRound" v-on:click="nextRound()">nextRound</button>
-      <b-field label="Log">
+      <b-field label="Log" label-position="on-border">
         <b-input maxlength="200" type="textarea" v-model="log" readonly></b-input>
       </b-field>
     </div>
@@ -84,6 +93,15 @@ export default Vue.extend({
       });
   },
   computed: {
+    activeStep: function (): string {
+      if (this.game.status  === GAME_STATUS.WAITING){
+        return "1";
+      } else if (this.game.status  === GAME_STATUS.PLAYING){
+        return this.game.isChooseing === "0" ? "2" : "3";
+      } else {
+        return "4";
+      }
+    },
     isWaiting: function (): boolean {
       return this.game.status === GAME_STATUS.WAITING;
     },
@@ -185,3 +203,14 @@ export default Vue.extend({
   }
 });
 </script>
+<style>
+.general_title{
+  margin: 3%;
+  font-size: 17px;
+  text-align: center;
+}
+.general_value{
+  margin: 1%;
+  text-align: center;
+}
+</style>
