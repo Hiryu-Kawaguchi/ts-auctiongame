@@ -36,6 +36,7 @@ export default Vue.extend({
   },
   async created () {
     const db = await GameService.connectDB();
+    await GameService.anonymousAuth();
     this.$store.commit('setDB', db);
   },
   computed: {

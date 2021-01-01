@@ -1,6 +1,6 @@
 <template>
   <div>
-    <b-steps :value="activeStep" :animated="false" :has-navigation="false" mobile-mode="null">
+    <b-steps :value="activeStep" :animated="false" :has-navigation="false" :mobile-mode="null">
         <b-step-item step="1" label="待機中..">
         </b-step-item>
         <b-step-item step="2" label="選択中..">
@@ -14,13 +14,13 @@
     <h3 class="general_title">ユーザーネーム: {{yourName}}</h3>
     <div v-if="isWaiting">
       <h3 class="general_title">現在参加者数: {{joinPlayerNum}}</h3>
-      <p>※3人以上から開始可能です</p>
+      <p>※3人以上から開始可能</p>
       <b-button @click="start()" :disabled="canStartPlayerNum" expanded>ゲーム開始</b-button>
     </div>
     <div v-else-if="isPlaying">
       <h3 class="general_title">ラウンド: {{computedRound}}</h3>
-      <h3 class="general_title">ScoreCard: {{scoreCard}}</h3>
-      <h3 class="general_title">RoundScore: {{roundScore}}</h3>
+      <h3 class="general_value">スコアカード: {{scoreCard}}</h3>
+      <h3 class="general_title">ラウンド点数: {{roundScore}}</h3>
       <div class="general_value" v-for="p in game.players" :key="p.id">
         <strong>ユーザー: {{p.name}} </strong>
         <select v-if="p.name === yourName & p.useCards[game.round] === 0" v-model="chooseCard" id="choose_card" name="choose_card">
@@ -87,8 +87,13 @@ export default Vue.extend({
       .onSnapshot((doc: any) => {
         this.game = doc.data();
         if (this.game.isChooseing === "1"){
+          let log = "";
+          this.game.players.forEach(p => {
+            log = log + `${p.name}: ${p.useCards[this.game.round]}\n`;
+          });
           const winner = this.computedWinner(this.game.round);
-          this.log = `Round${this.game.round + 1} Finished\nWinner Player: ${winner}\n` + this.log;
+          log = log + `Round Winner: ${winner}`;
+          this.log = log;
         }
       });
   },
@@ -172,32 +177,21 @@ export default Vue.extend({
       return 0;
     },
     computedWinner (round:number): string{
-      const roundScore = this.computedRoundScore(round, 0);
+      const isMinusScore = this.computedRoundScore(round, 0) > 0;
       const players = this.game.players;
-      const min = players.map(p => p.useCards[round]).reduce((a, b)=>Math.min(a, b));
-      const max = players.map(p => p.useCards[round]).reduce((a, b)=>Math.max(a, b));
-      if (roundScore < 0){
-        if (min === 0){
-          return "Notyet Round";
-        } else {
-          const minPlayers = players.filter(p => p.useCards[round] === min);
-          if (minPlayers.length !== 1){
-            return "No Winner";
-          }
-          return minPlayers[0].name;
-        }
-      } else if (0 < roundScore){
-        if (max === 0){
-          return "Notyet Round";
-        } else {
-          const maxPlayers = players.filter(p => p.useCards[round] === max);
-          if (maxPlayers.length !== 1){
-            return "No Winner";
-          }
-          return maxPlayers[0].name;
-        }
+      const distinctList = players.map(p => p.useCards[round]).filter((x, i, self) => self.indexOf(x) !== self.lastIndexOf(x));
+      const notDisstinctList = players.map(p => p.useCards[round]).filter(c => !distinctList.includes(c));
+      if (!notDisstinctList?.length){
+        return "No Winner";
+      }
+      if (isMinusScore){
+        const min = notDisstinctList.reduce((a, b)=>Math.min(a, b));
+        const minPlayers = players.filter(p => p.useCards[round] === min);
+        return minPlayers[0].name;
       } else {
-        return "Notyet Round";
+        const max = notDisstinctList.reduce((a, b)=>Math.max(a, b));
+        const maxPlayers = players.filter(p => p.useCards[round] === max);
+        return maxPlayers[0].name;
       }
     }
   }
@@ -206,7 +200,7 @@ export default Vue.extend({
 <style>
 .general_title{
   margin: 3%;
-  font-size: 17px;
+  font-size: 15px;
   text-align: center;
 }
 .general_value{
