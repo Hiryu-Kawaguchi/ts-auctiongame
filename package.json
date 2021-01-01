@@ -52,8 +52,11 @@
         "error",
         "always"
       ],
-      "indent": ["error", 2],
-      "keyword-spacing" : 1,
+      "indent": [
+        "error",
+        2
+      ],
+      "keyword-spacing": 1,
       "space-before-function-paren": 1,
       "space-infix-ops": 1,
       "comma-spacing": 1,
