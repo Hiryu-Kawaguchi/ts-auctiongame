@@ -9,17 +9,11 @@ export default class GameService {
   }
 
   static async anonymousAuth (){
-    firebase.auth().signInAnonymously()
-      .then(() => {
-        // Signed in..
-        console.log("SUCCESS AUTHENTICATION");
-      })
-      .catch((error) => {
-        const errorCode = error.code;
-        const errorMessage = error.message;
-        console.log("FAILED AUTHENTICATION", errorCode, errorMessage);
-        // ...
-      });
+    try {
+      await firebase.auth().signInAnonymously();
+    } catch (err){
+      // 特に何もしない
+    }
   }
 
   static generateUuid (){
