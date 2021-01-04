@@ -7,6 +7,7 @@ export default class GameService {
   static async connectDB (){
     const response = await fetch('/__/firebase/init.json');
     firebase.initializeApp(await response.json());
+    firebase.analytics();
     return firebase.firestore();
   }
 
