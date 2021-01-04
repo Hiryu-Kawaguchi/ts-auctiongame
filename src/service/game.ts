@@ -3,32 +3,17 @@ import firebase from "firebase";
 export default class GameService {
   
   static async connectDB (){
-    const firebaseConfig = {
-      apiKey: "AIzaSyBTjRfyuO0SPuGj4hxD9ZjB_xUTkLaB6wk",
-      authDomain: "vue-chat-69814.firebaseapp.com",
-      databaseURL: "https://vue-chat-69814.firebaseio.com",
-      projectId: "vue-chat-69814",
-      storageBucket: "vue-chat-69814.appspot.com",
-      messagingSenderId: "560217022470",
-      appId: "1:560217022470:web:3ac3dd96b2db4a7c6c6387",
-      measurementId: "G-TWT9JQ2277"
-    };
-    firebase.initializeApp(firebaseConfig);
+    const response = await fetch('/__/firebase/init.json');
+    firebase.initializeApp(await response.json());
     return firebase.firestore();
   }
 
   static async anonymousAuth (){
-    firebase.auth().signInAnonymously()
-      .then(() => {
-        // Signed in..
-        console.log("SUCCESS AUTHENTICATION");
-      })
-      .catch((error) => {
-        const errorCode = error.code;
-        const errorMessage = error.message;
-        console.log("FAILED AUTHENTICATION", errorCode, errorMessage);
-        // ...
-      });
+    try {
+      await firebase.auth().signInAnonymously();
+    } catch (err){
+      // 特に何もしない
+    }
   }
 
   static generateUuid (){
