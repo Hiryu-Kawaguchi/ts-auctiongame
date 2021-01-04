@@ -1,13 +1,14 @@
 import * as firebase from 'firebase/app';
 import 'firebase/auth';
 import 'firebase/firestore';
+import 'firebase/analytics';
 
 export default class GameService {
   
   static async connectDB (){
     const response = await fetch('/__/firebase/init.json');
-    firebase.initializeApp(await response.json());
-    firebase.analytics();
+    await firebase.initializeApp(await response.json());
+    await firebase.analytics();
     return firebase.firestore();
   }
 
