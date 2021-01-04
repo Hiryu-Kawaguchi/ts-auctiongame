@@ -1,5 +1,5 @@
 <template>
-  <div id="app">
+  <div id="app" class="container">
     <section class="hero">
         <div class="hero-body">
           <div class="container">

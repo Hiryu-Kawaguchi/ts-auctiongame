@@ -86,7 +86,12 @@ export default Vue.extend({
     this.unsubscribe = db.collection("game").doc(this.gameId)
       .onSnapshot((doc: any) => {
         this.game = doc.data();
-        if (this.game.isChooseing === "1"){
+        if (this.game.status === GAME_STATUS.DONE){
+          let log = "GAME FINISHED";
+          const players = this.computedGameWinner();
+          Object.keys(players).forEach((key) => log = log + `${key}: ${players[key]}`);
+          this.log = log;
+        } else if (this.game.isChooseing === "1"){
           let log = "";
           this.game.players.forEach(p => {
             log = log + `${p.name}: ${p.useCards[this.game.round]}\n`;
@@ -156,7 +161,11 @@ export default Vue.extend({
     async nextRound (): Promise<void> {
       const db: firebase.firestore.Firestore = this.$store.getters.db;
       const nextRound = this.game.round + 1;
-      await db.collection("game").doc(this.gameId).update({round: nextRound, isChooseing: "0"});
+      if (15 < nextRound){
+        await db.collection("game").doc(this.gameId).update({status: "2", isChooseing: "0"});
+      } else {
+        await db.collection("game").doc(this.gameId).update({round: nextRound, isChooseing: "0"});
+      }
     },
     canUseCard (hasCards:Array<number>, useCards:Array<number>): Array<number>{
       return hasCards.filter(c => !useCards.includes(c));
@@ -193,6 +202,21 @@ export default Vue.extend({
         const maxPlayers = players.filter(p => p.useCards[round] === max);
         return maxPlayers[0].name;
       }
+    },
+    computedGameWinner (){
+      const roundArray = Array(15).fill(0).map((_, i) => i);
+      let players :{ [key:string] : number } = {};
+      this.game.players.forEach(p => {
+        players[p.name] = 0;
+      });
+      const roundScoreList = roundArray.map(i => this.computedRoundScore(i, 0));
+      const roundWinnerList = roundArray.map(i => this.computedWinner(i));
+      roundWinnerList.forEach((v:string, i:number) => {
+        if (v !== "No Winner"){
+          players[v] = players[v] + roundScoreList[i];
+        }
+      });
+      return players;
     }
   }
 });
