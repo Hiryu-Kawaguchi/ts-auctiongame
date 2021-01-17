@@ -12,6 +12,19 @@
       <div class="buttons">
             <b-button type="is-primary" @click="onclick()" expanded>{{submitButtonTitle}}</b-button>
         </div>
+      <b-message title="遊び方" type="is-info" aria-close-label="Close message">
+            オンラインでハゲタカのえじきを遊べるサイトです
+            3人以上でゲームを始めることができます
+            [部屋を作成する場合]
+            1. UserNameを入力してCreate Gameを押す
+            2. 表示されたゲームNoをコピーして参加するユーザーに知らせる
+            3. 3人以上集まったらゲーム開始をクリック
+            [部屋に入手する場合]
+            1. UserNameを入力
+            2. NewGameをOffにして知らされたゲームIDを入力
+            3. JoinGameをクリック
+            ※COM機能は未実装なので必ずプレイすることができる人間が3人必要です
+      </b-message>
   </div>
 </template>
 
